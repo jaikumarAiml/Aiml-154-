@@ -9,7 +9,7 @@
 # 5. No multicollinearity: The independent variable should not be too highly correlated with each other.
 # - Violations of these assumptions may lead to inefficiency in the regression parameters and unreliable predictions.
 
-# In[1]:
+# In[2]:
 
 
 import pandas as pd 
@@ -20,14 +20,14 @@ from statsmodels.graphics.regressionplots import influence_plot
 import numpy as np
 
 
-# In[2]:
+# In[3]:
 
 
 cars = pd.read_csv("Cars.csv")
 cars.head()
 
 
-# In[3]:
+# In[4]:
 
 
 cars = pd.DataFrame(cars,columns=["HP","VOL","SP","WT","MPG"])
@@ -43,13 +43,13 @@ cars.head()
 
 # #### EDA
 
-# In[12]:
+# In[7]:
 
 
 cars.info()
 
 
-# In[17]:
+# In[8]:
 
 
 #check for missing values.
@@ -61,7 +61,7 @@ cars.isna().sum()
 # - There are 81 observation (81 diffrent cars data)
 # - The data type of the columns are also relevant and valid
 
-# In[23]:
+# In[10]:
 
 
 #create a figure with two subplots (one above the other)
@@ -74,7 +74,7 @@ plt.tight_layout()
 plt.show()
 
 
-# In[25]:
+# In[11]:
 
 
 #create a figure with two subplots (one above the other)
@@ -87,7 +87,7 @@ plt.tight_layout()
 plt.show()
 
 
-# In[27]:
+# In[12]:
 
 
 #create a figure with two subplots (one above the other)
@@ -100,7 +100,7 @@ plt.tight_layout()
 plt.show()
 
 
-# In[29]:
+# In[13]:
 
 
 #create a figure with two subplots (one above the other)
@@ -113,7 +113,7 @@ plt.tight_layout()
 plt.show()
 
 
-# In[31]:
+# In[14]:
 
 
 #create a figure with two subplots (one above the other)
@@ -134,7 +134,7 @@ plt.show()
 
 # #### Checking for duplicated rows
 
-# In[35]:
+# In[17]:
 
 
 cars[cars.duplicated()]
@@ -142,14 +142,14 @@ cars[cars.duplicated()]
 
 # #### Pairs plots and Correlation Coefficients
 
-# In[38]:
+# In[19]:
 
 
 sns.set_style(style='darkgrid')
 sns.pairplot(cars)
 
 
-# In[42]:
+# In[20]:
 
 
 cars.corr()
@@ -158,6 +158,50 @@ cars.corr()
 # #### Observations
 # - The highest correlation coefficient is  between HP and Sp is(0.973848)
 # - The next Highest correlation coefficient is between VOL and VOL(1.000000)
+# - Between x and y.all the x variable are showing moderste to high correlation strength, highest being between HP and MPG.
+# - Therefore this dataset qualifies for building a multiple linear regression model to predict MPG
+# - Among x columns (x1,x2,x3 and x4),some very high correlation strength are observed between SP vs HP,VOL vs WT
+# - The high correlation among x columns is not desirable as it might lead to multicollinearity problem 
+
+# #### Preparing a preliminary model considering all X columns
+
+# In[23]:
+
+
+import statsmodels.formula.api as smf
+model1 = smf.ols('MPG~WT+VOL+SP+HP',data=cars).fit()
+
+
+# In[24]:
+
+
+model1.summary()
+
+
+# #### Observation from model summary
+# - The R-squared and adjusted R-squared values are good and about 75% of variability in Y is explained by X columns
+# - The probability value with respect to F-statistic is colse to zero,undicating that all or some of X columns are signficant
+# - The p-value for VOL and WT are higher than 5% indicating some interaction issue among themselves,which need to be further explored
+
+# #### Performance metric for model1 (By Mean Squared Error)
+
+# In[74]:
+
+
+#Find the performance metrics
+#create a data frame with actual y and predicated y columns
+df1=pd.DataFrame()
+df1["actual_y1"]=cars["MPG"]
+df1.head()
+
+
+# In[76]:
+
+
+pred_y1=model1.predict(cars.iloc[:,0:4])
+df1["pred_y1"]=pred_y1
+df1.head()
+
 
 # In[ ]:
 
